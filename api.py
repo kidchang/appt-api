@@ -81,14 +81,17 @@ def schedule_appt():
             409,
             _unavailable_message(appt_time)
         )
-    return utils.make_json_response(200, appt.to_dict())
+    return utils.make_json_response(
+        200,
+        "Your appointment is scheduled on %s, at %s" % (date, start_time)
+    )
 
 
 @api.route('/api/appts', methods=['DELETE'])
-def cancel_appt_by_time(appt_id):
-    data = utils.get_request_data
+def cancel_appt_by_time():
+    data = utils.get_request_data()
     try:
-        date_time = data['date']
+        date = data['date']
         start_time = data['start_time']
     except KeyError:
         return utils.make_json_response(
@@ -99,7 +102,11 @@ def cancel_appt_by_time(appt_id):
     appt_time = datetime.strptime(date + ' ' + start_time, '%b %d %Y %I:%M%p')
     appt, error = _get_appt_by_appt_time(appt_time)
     if error:
-        return utils.make_json_response(**error)
+        return utils.make_json_response(
+            404,
+            "I am not able to find your appointment on %s, at %s" %
+            (date, start_time)
+        )
     appt.delete()
     return utils.make_json_response(
         200,
@@ -134,7 +141,7 @@ def _validate_start_time(start_time):
         stripped_time = int(start_time.split(':')[0])
     except ValueError:
         return False
-    if start_time.endswith('PM'):
+    if start_time.endswith('PM') and not start_time.startswith('12'):
         stripped_time += 12
     return stripped_time in APPT_SLOTS
 
