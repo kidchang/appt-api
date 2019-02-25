@@ -53,6 +53,12 @@ def schedule_appt():
             "Sorry I cannot schedule appointment:"
             " You did not specify a date and a time."
         )
+    if not _validate_date(date):
+        return utils.make_json_response(
+            400,
+            "Sorry we are closed on weekends."
+            " Appointments can only be scheduled from Monday to Friday."
+        )
     if not _validate_start_time(start_time):
         appt_slots = list(map(lambda x: str(x-12) + "PM"
             if x > 12 else str(x) + "AM"
@@ -135,6 +141,10 @@ def _get_appt_by_appt_time(appt_time):
             'msg': 'The appointment you are trying to cancel does not exist.'
             }
     return appt, None
+
+def _validate_date(date):
+    date_obj = datetime.strptime(date, "%b %d %Y")
+    return date_obj.weekday() not in [6, 7]
 
 def _validate_start_time(start_time):
     try:
