@@ -1,12 +1,13 @@
 import mongoengine
 import pika
 import simplejson as json
+import smtplib
 import time
 
 from datetime import datetime
 from datetime import timedelta
 from flask import current_app as app
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template
 from mongoengine.queryset.visitor import Q
 
 import utils
@@ -119,6 +120,28 @@ def cancel_appt_by_time():
         "Your appointment has been successfully canceled."
     )
 
+@api.route('/api/send_email', methods=['GET'])
+def send_email():
+    email_user = 'edge.lambda@gmail.com'
+    email_pass = 'edge1lambda2'
+
+    sent_from = email_user
+    to = 'mr.xchang@gmail.com'
+    subject = 'Network Status'
+    body = 'http://localhost:9999/api/network_stats'
+    message = "From: " + sent_from + "\n" + "To: " + to + "\n" + "Subject:" + subject + "\n\n" + body
+    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    server.ehlo()
+    server.login(email_user, email_pass)
+    server.sendmail(sent_from, to, message)
+    server.close()
+    return utils.make_json_response(200, 'email_sent')
+
+
+@api.route("/api/network_stats")
+def index():
+    message = "Network Status:"
+    return render_template('index.html', message=message)
 
 def _get_appt_by_id(appt_id):
     try:
