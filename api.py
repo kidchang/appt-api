@@ -73,7 +73,7 @@ def schedule_appt():
     appt = models.Appointment()
     try:
         appt_time = datetime.strptime(
-            date + ' ' + start_time, '%b %d %Y %I:%M%p'
+            date + ' ' + start_time, '%b %d %Y %H:%M'
         )
     except ValueError:
         return utils.make_json_response(
@@ -88,6 +88,13 @@ def schedule_appt():
             409,
             _unavailable_message(appt_time)
         )
+    s_time = int(start_time.split(':')[0])
+    if s_time > 12:
+        start_time = str(s_time - 12) + 'PM'
+    elif s_time == 12:
+        start_time = str(s_time) + 'PM'
+    else:
+        start_time = str(s_time) + 'AM' 
     return utils.make_json_response(
         200,
         "Your appointment is scheduled on %s, at %s" % (date, start_time)
@@ -128,7 +135,7 @@ def send_email():
     sent_from = email_user
     to = 'weidongshao@gmail.com'
     subject = 'Network Status'
-    body = 'http://13.52.107.109:9999/api/network_stats'
+    body = 'http://nms1.uubright.com:9999/api/network_stats'
     message = "From: " + sent_from + "\n" + "To: " + to + "\n" + "Subject:" + subject + "\n\n" + body
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     server.ehlo()
@@ -174,8 +181,6 @@ def _validate_start_time(start_time):
         stripped_time = int(start_time.split(':')[0])
     except ValueError:
         return False
-    if start_time.endswith('PM') and not start_time.startswith('12'):
-        stripped_time += 12
     return stripped_time in APPT_SLOTS
 
 def _get_available_appts(date):
