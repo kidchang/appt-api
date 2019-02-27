@@ -126,9 +126,9 @@ def send_email():
     email_pass = 'edge1lambda2'
 
     sent_from = email_user
-    to = 'mr.xchang@gmail.com'
+    to = 'weidongshao@gmail.com'
     subject = 'Network Status'
-    body = 'http://localhost:9999/api/network_stats'
+    body = 'http://13.52.107.109:9999/api/network_stats'
     message = "From: " + sent_from + "\n" + "To: " + to + "\n" + "Subject:" + subject + "\n\n" + body
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     server.ehlo()
