@@ -1,4 +1,5 @@
 import mongoengine
+import os
 import pika
 import simplejson as json
 import smtplib
@@ -94,7 +95,7 @@ def schedule_appt():
     elif s_time == 12:
         start_time = str(s_time) + 'PM'
     else:
-        start_time = str(s_time) + 'AM' 
+        start_time = str(s_time) + 'AM'
     return utils.make_json_response(
         200,
         "Your appointment is scheduled on %s, at %s" % (date, start_time)
@@ -130,7 +131,7 @@ def cancel_appt_by_time():
 @api.route('/api/send_email', methods=['GET'])
 def send_email():
     email_user = 'edge.lambda@gmail.com'
-    email_pass = 'edge1lambda2'
+    email_pass = os.environ["EMAIL_PASS"]
 
     sent_from = email_user
     to = 'weidongshao@gmail.com'
